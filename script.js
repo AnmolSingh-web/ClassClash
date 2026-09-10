@@ -5,6 +5,7 @@ const storageKey = "classScheduleTrackerSchedule";
 const priorityStorageKey = "smartTimetablePrioritySubjects";
 const notificationKey = "smartTimetablePriorityNotifications";
 let currentWorkbook = null;
+let hasAttemptedUpload = false;
 
 const currentClassName = document.getElementById("currentClassName");
 const currentClassEnd = document.getElementById("currentClassEnd");
@@ -138,7 +139,11 @@ async function loadWorkbookFromFile(file) {
     statusMessage.textContent = "Please select your section first.";
     return null;
   } catch (e) {
-    statusMessage.textContent = "The uploaded file could not be read. Please use a valid .xlsx or .xls timetable.";
+    if (hasAttemptedUpload) {
+      statusMessage.textContent = "The uploaded file could not be read. Please use a valid .xlsx or .xls timetable.";
+    } else {
+      showDefaultWelcomeState();
+    }
     return null;
   }
 }
@@ -147,6 +152,7 @@ async function handleUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
+  hasAttemptedUpload = true;
   await loadWorkbookFromFile(file);
 }
 
@@ -154,6 +160,7 @@ async function handleSettingsUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
+  hasAttemptedUpload = true;
   await loadWorkbookFromFile(file);
 }
 
@@ -813,14 +820,18 @@ function updateClock() {
   });
 }
 
-function resetSchedule() {
-  localStorage.removeItem(storageKey);
-  scheduleList.innerHTML = `<div class="empty-state">No classes available</div>`;
+function showDefaultWelcomeState() {
   setCurrentClassState("Upload a timetable");
   nextClassName.textContent = "--";
   nextClassStart.textContent = "--:--";
-  statusMessage.textContent = "Upload your timetable to begin.";
+  statusMessage.textContent = "Please upload a timetable.";
   savedScheduleLabel.textContent = "No schedule saved";
+}
+
+function resetSchedule() {
+  localStorage.removeItem(storageKey);
+  scheduleList.innerHTML = `<div class="empty-state">No classes available</div>`;
+  showDefaultWelcomeState();
 
   if (sheetSelect) {
     sheetSelect.disabled = true;
@@ -935,8 +946,7 @@ function init() {
     if (uploadText) uploadText.textContent = "Update timetable";
     if (uploadSubtext) uploadSubtext.textContent = "Workbook loaded";
   } else {
-    setCurrentClassState("Upload a timetable");
-    statusMessage.textContent = "Please upload the time table and select your section first.";
+    showDefaultWelcomeState();
     if (uploadText) uploadText.textContent = "Upload timetable";
     if (uploadSubtext) uploadSubtext.textContent = ".xlsx / .xls";
   }
