@@ -1,5 +1,6 @@
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const timetableFile = 'timetable.xlsx';
 const storageKey = "classScheduleTrackerSchedule";
 const priorityStorageKey = "smartTimetablePrioritySubjects";
 const notificationKey = "smartTimetablePriorityNotifications";
