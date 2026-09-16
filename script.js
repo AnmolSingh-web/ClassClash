@@ -1,6 +1,5 @@
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const timetableFile = 'timetable.xlsx';
 const storageKey = "classScheduleTrackerSchedule";
 const priorityStorageKey = "smartTimetablePrioritySubjects";
 const notificationKey = "smartTimetablePriorityNotifications";
@@ -839,20 +838,6 @@ function showDefaultWelcomeState() {
   savedScheduleLabel.textContent = "No schedule saved";
 }
 
-async function loadBundledTimetable() {
-  try {
-    const response = await fetch(`./${timetableFile}`, { cache: "no-store" });
-    if (!response.ok) return;
-
-    const blob = await response.blob();
-    await loadWorkbookFromFile(new File([blob], timetableFile, {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    }));
-  } catch (error) {
-    showDefaultWelcomeState();
-  }
-}
-
 function resetSchedule() {
   localStorage.removeItem(storageKey);
   scheduleList.innerHTML = `<div class="empty-state">No classes available</div>`;
@@ -974,7 +959,6 @@ function init() {
     showDefaultWelcomeState();
     if (uploadText) uploadText.textContent = "Upload timetable";
     if (uploadSubtext) uploadSubtext.textContent = ".xlsx / .xls";
-    loadBundledTimetable();
   }
 
   const storedTheme = localStorage.getItem("smartTimetableTheme");
