@@ -99,6 +99,15 @@ function fileToArrayBuffer(file) {
 async function loadWorkbookFromFile(file) {
   if (!file) return null;
 
+  if (typeof XLSX === "undefined") {
+    if (hasAttemptedUpload) {
+      statusMessage.textContent = "The spreadsheet library failed to load. Please refresh the page and try again.";
+    } else {
+      showDefaultWelcomeState();
+    }
+    return null;
+  }
+
   try {
     const buffer = await fileToArrayBuffer(file);
     currentWorkbook = XLSX.read(buffer, { type: "array" });
