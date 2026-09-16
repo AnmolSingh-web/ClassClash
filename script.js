@@ -287,6 +287,7 @@ function getSubjectsFromSchedule(schedule) {
     classes.forEach((item) => {
       const subject = normalizeSubject(item.subject || "");
       if (!subject || all.includes(subject)) return;
+      if (isBreakSubject(subject)) return;
       all.push(subject);
     });
   });
@@ -407,7 +408,8 @@ function parseMasterSheet(sheet) {
       schedule[day].push({
         subject,
         start: slot.start,
-        end: slot.end
+        end: slot.end,
+        isBreak: isBreakSubject(subject)
       });
     });
   }
@@ -533,11 +535,14 @@ function looksLikeIgnoredSubject(subject) {
   if (!text) return true;
 
   return (
-    text.includes("break") ||
-    text.includes("lunch") ||
-    text.includes("mentorship") ||
-    text.includes("minor/honors")
+    text.includes("minor/honors") ||
+    text.includes("major/minor")
   );
+}
+
+function isBreakSubject(subject) {
+  const text = normalizeSubject(subject).toLowerCase();
+  return text.includes("break") || text.includes("lunch") || text.includes("mentorship");
 }
 
 function normalizeSubject(value) {
@@ -584,7 +589,7 @@ function renderSchedule(schedule) {
     return;
   }
 
-  scheduleList.innerHTML = classes.map((c) => `<div class="schedule-item">
+  scheduleList.innerHTML = classes.map((c) => `<div class="schedule-item${c.isBreak ? " break-item" : ""}">
     <div class="time">${formatDisplayTime(c.start)} - ${formatDisplayTime(c.end)}</div>
     <div class="subject">${escapeHTML(c.subject)}</div>
   </div>`).join("");
@@ -598,14 +603,27 @@ function renderDesktopItinerary(schedule) {
     .slice()
     .sort((a, b) => timeStringToMinutes(a.start) - timeStringToMinutes(b.start));
 
-  desktopItineraryCount.textContent = `${classes.length} class${classes.length === 1 ? "" : "es"}`;
+  const realClasses = classes.filter((item) => !item.isBreak);
+  const totalRealClasses = realClasses.length;
+
+  desktopItineraryCount.textContent = `${totalRealClasses} class${totalRealClasses === 1 ? "" : "es"}`;
   if (!classes.length) {
     desktopItineraryList.innerHTML = `<div class="empty-state">No classes scheduled for ${today}.</div>`;
     return;
   }
 
-  desktopItineraryList.innerHTML = classes.map((item, index) => `
-    <article class="itinerary-item">
+  let classNumber = 0;
+  desktopItineraryList.innerHTML = classes.map((item) => {
+    let label;
+    if (item.isBreak) {
+      label = "Break";
+    } else {
+      classNumber += 1;
+      label = classNumber === 1 ? "First class" : `Class ${classNumber} of ${totalRealClasses}`;
+    }
+
+    return `
+    <article class="itinerary-item${item.isBreak ? " is-break" : ""}">
       <div class="itinerary-time">
         <strong>${formatDisplayTime(item.start)}</strong>
         <span>${formatDisplayTime(item.end)}</span>
@@ -613,10 +631,11 @@ function renderDesktopItinerary(schedule) {
       <div class="itinerary-rail" aria-hidden="true"><span></span></div>
       <div class="itinerary-copy">
         <strong>${escapeHTML(item.subject)}</strong>
-        <span>${index === 0 ? "First class" : `Class ${index + 1} of ${classes.length}`}</span>
+        <span>${label}</span>
       </div>
     </article>
-  `).join("");
+  `;
+  }).join("");
 }
 
 function findNextClassFromSchedule(schedule, todayName, currentMinute, includeDay = false) {

@@ -95,6 +95,10 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .schedule-list { display: grid; gap: 1px; margin-top: 16px; overflow: hidden; border: 1px solid var(--separator); border-radius: 16px; }
 .schedule-item { display: grid; grid-template-columns: 150px 1fr auto; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; background: var(--card); border-bottom: 1px solid var(--separator); }
 .schedule-item:last-child { border-bottom: 0; }
+.schedule-item.break-item { background: color-mix(in srgb, var(--card) 55%, transparent); }
+.schedule-item.break-item .subject { color: var(--secondary); font-weight: 500; }
+.itinerary-item.is-break .itinerary-rail span { background: var(--secondary); }
+.itinerary-item.is-break .itinerary-copy strong { color: var(--secondary); font-weight: 500; }
 .time { color: var(--secondary); font-size: 15px; }
 .subject { font-size: 17px; font-weight: 650; }
 .subject::after { content: "CLASS"; display: inline-block; margin-left: 9px; padding: 3px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font-size: 10px; font-weight: 700; vertical-align: middle; }
